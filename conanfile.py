@@ -15,11 +15,13 @@ class QDjangoConan(ConanFile):
                 git checkout tags/v0.6.2 -b 0.6.2" % self.folder_name)
 
     def build(self):
-        self.run( "cd %s && \
-                mkdir build && \
-                cd build && \
-                qmake CONFIG+=debug_and_release .. && \
-                make" % self.folder_name )
+        qmake_build_type = "release"
+        self.run( "cd %s && mkdir build" % self.folder_name)
+        if self.settings.build_type == "Debug":
+            qmake_build_type = "debug"
+        self.run( "cd %s/build && \
+            qmake CONFIG+=%s .. && \
+            make" % (self.folder_name, qmake_build_type))
 
     def package(self):
         self.copy( pattern="libqdjango-db.*", dst="lib", src="%s/build/src/db" % self.folder_name)
